@@ -47,9 +47,11 @@ def find_nbhd(image, nodes, bbox_edges, node):
     # Find clusters of unvisited pixels along the border of the bounding box;
     # these will be the starting points for traversing the pixels in each edge.
     out_srcs = find_unvisited_out_srcs(image, node)
+    print "out_srcs = ", out_srcs
 
     for pixel in out_srcs:
-        nbhd = nbhd.union(traverse_edge(image, nodes, bbox_edges, node, pixel))
+        found_nodes = traverse_edge(image, nodes, bbox_edges, node, pixel)
+        nbhd = nbhd.union(found_nodes)
 
     return nbhd
 
@@ -62,13 +64,31 @@ def make_bbox_iter(bbox_tl, bbox_br):
     br_to_bl = zip(range(bbox_br[0], bbox_bl[0], -1), repeat(bbox_br[1])) # Bottom right to bottom left.
     bl_to_tl = zip(repeat(bbox_bl[0]), range(bbox_bl[1], bbox_tl[1], -1)) # Bottom left to top left.
 
+    print tl_to_tr
+
     return chain(tl_to_tr, tr_to_br, br_to_bl, bl_to_tl)
 
 def find_unvisited_out_srcs(image, node):
     """ Returns a set of pixel representatives of unvisited edges incident to the given node. """
-    print node.bbox_tl
-    print node.bbox_br
+    print "TL", node.bbox_tl
+    print "BR", node.bbox_br
     bbox_iter = make_bbox_iter(node.bbox_tl, node.bbox_br)
+    print bbox_iter
+
+    print
+    print
+    print
+    print "--"
+    count = 0
+    for pixel in bbox_iter:
+        count += 1
+        print pixel
+        print image[pixel]
+    print count
+    print "--"
+    print
+    print
+    print
 
     reps = []
     cur_rep = None

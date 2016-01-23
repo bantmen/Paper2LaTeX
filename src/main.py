@@ -16,4 +16,5 @@ if __name__ == "__main__":
     img_nodes, img = get_semantics(file_name)
     bbox_edges = make_bbox_edge_dict(img_nodes)
     graph = find_edges(img, img_nodes, bbox_edges)
-    fuck(graph)
+    print graph
+    #fuck(graph)
