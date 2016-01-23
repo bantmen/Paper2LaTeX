@@ -27,3 +27,4 @@ def transpile(g):
     for node in g.nodes:
       f.write("\t\\draw " + getNodeString(node))   
     f.write("\end{tikzpicture}\n\end{document}")
+
