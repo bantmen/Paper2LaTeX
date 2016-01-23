@@ -55,37 +55,42 @@ def find_nbhd(image, nodes, bbox_edges, node):
 
     # Find clusters of unvisited pixels along the border of the bounding box;
     # these will be the starting points for traversing the pixels in each edge.
-    out_srcs = find_unvisited_out_srcs(image, node)
-    # out_srcs = 
-
-    print "out_srcs: ", out_srcs, node
+    # out_srcs = find_unvisited_out_srcs(image, node)
+    out_srcs = find_starting_pixels(image, node)
 
     for pixel in out_srcs:
-        found_nodes = traverse_edge(image, nodes, bbox_edges, node, pixel)
-        nbhd = nbhd.union(found_nodes)
+        if image[pixel] == PIXEL_UNVISITED:
+            found_nodes = traverse_edge(image, nodes, bbox_edges, node, pixel)
+            nbhd = nbhd.union(found_nodes)
 
     return nbhd
 
 def make_bbox_iter(bbox_tl, bbox_br):
-    bbox_tr = (bbox_br[0], bbox_tl[1])
-    bbox_bl = (bbox_tl[0], bbox_br[1])
+    bbox_tr = (bbox_tl[0], bbox_br[1])
+    bbox_bl = (bbox_br[0], bbox_tl[1])
 
-    tl_to_tr = zip(range(bbox_tl[0], bbox_tr[0]), repeat(bbox_tl[1])) # Top left to top right.
-    tr_to_br = zip(repeat(bbox_tr[0]), range(bbox_tr[1], bbox_br[1])) # Top right to bottom right.
-    br_to_bl = zip(range(bbox_br[0], bbox_bl[0], -1), repeat(bbox_br[1])) # Bottom right to bottom left.
-    bl_to_tl = zip(repeat(bbox_bl[0]), range(bbox_bl[1], bbox_tl[1], -1)) # Bottom left to top left.
+    # tl_to_tr = zip(range(bbox_tl[0], bbox_tr[0]), repeat(bbox_tl[1])) # Top left to top right.
+    # tr_to_br = zip(repeat(bbox_tr[0]), range(bbox_tr[1], bbox_br[1])) # Top right to bottom right.
+    # br_to_bl = zip(range(bbox_br[0], bbox_bl[0], -1), repeat(bbox_br[1])) # Bottom right to bottom left.
+    # bl_to_tl = zip(repeat(bbox_bl[0]), range(bbox_bl[1], bbox_tl[1], -1)) # Bottom left to top left.
+
+    tl_to_tr = zip(repeat(bbox_tl[0] - 1), xrange(bbox_tl[1], bbox_tr[1] + 1)) 
+    tr_to_br = zip(xrange(bbox_tr[0], bbox_br[0] + 1), repeat(bbox_bl[1] + 1)) 
+    br_to_bl = zip(repeat(bbox_bl[0] + 1), xrange(bbox_br[1], bbox_bl[1] + 1, -1)) 
+    bl_to_tl = zip(xrange(bbox_bl[0], bbox_tl[0] + 1, -1), repeat(bbox_tl[1] - 1)) 
 
     return chain(tl_to_tr, tr_to_br, br_to_bl, bl_to_tl)
 
 def find_starting_pixels(image, node):
-    pass
+    bbox_tl = node.bbox_tl
+    bbox_br = node.bbox_br
+
+    for pixel in make_bbox_iter(bbox_tl, bbox_br):
+        yield pixel
 
 def find_unvisited_out_srcs(image, node):
     """ Returns a set of pixel representatives of unvisited edges incident to the given node. """
     bbox_iter = make_bbox_iter(node.bbox_tl, node.bbox_br)
-
-    print "BBOX COORDS"
-    print node.bbox_tl, node.bbox_br
 
     reps = []
     cur_rep = None
@@ -105,18 +110,28 @@ def traverse_edge(image, nodes, bbox_edges, node, start_pixel):
 
     found_nodes = set()
 
+    count = 0
+
     while not frontier.empty():
+        count += 1
+        if count == 100:
+            raise
+
         current = frontier.get()
+        # print current
+        print image[current]
         image[current] = PIXEL_VISITED
 
         if current in bbox_edges: 
-            if node != bbox_edges[current]: # Don't count loops as edges
+            if node != bbox_edges[current]: # Don't count loops as edges. WRONG check for 
                 found_nodes.add(bbox_edges[current])
             continue # Don't expand current pixel if it is on the boundary of a bounding box.
 
         for pixel in adjacent_pixels(current, image.shape):
-            if image[pixel] == PIXEL_UNVISITED:
+            if image[pixel] == PIXEL_UNVISITED: # TODO: also see if it is within the circle
                 frontier.put(pixel)
+
+    print "count: ", count
 
     return found_nodes
 
