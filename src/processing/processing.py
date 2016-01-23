@@ -1,4 +1,5 @@
 import cv2
+import cv2.cv as cv
 import numpy as np
 
 from edges import ImageNode
@@ -18,7 +19,7 @@ def get_semantics(file_name):
     min_closest_dist = int(max(height, width) / 7)
     bounding_wiggle = min_closest_dist
 
-    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, min_closest_dist,
+    circles = cv2.HoughCircles(img, cv.CV_HOUGH_GRADIENT, 1, min_closest_dist,
                                 param1=100, param2=30, minRadius=0, maxRadius=0)
 
     gimg = cv2.cvtColor(cimg, cv2.COLOR_BGR2GRAY)
