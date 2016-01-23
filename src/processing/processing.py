@@ -37,7 +37,7 @@ def get_semantics(file_name):
             cv2.circle(thresh_img,(x,y),2,(0,0,255),3)
             # draw bounding box
             cv2.rectangle(thresh_img, (min(width, x+r2), min(height, y+r2)), (max(0, x-r2), max(0, y-r2)), (125, 125, 25), 2)
-        img_node = ImageNode((max(0, x-r2), max(0, y-r2)), (x, y), (min(width, x+r2), min(height, y+r2)))
+        img_node = ImageNode((max(0, x-r2), max(0, y-r2)), (min(width, x+r2), min(height, y+r2)), (x, y))
         img_nodes.append(img_node)
 
     if debug:
