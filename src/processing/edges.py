@@ -33,6 +33,13 @@ def find_edges(image, nodes, bbox_edges):
     for node in nodes:
         nbhds[node] = find_nbhd(image, nodes, bbox_edges, node)
 
+    cv2.namedWindow('detected circles', cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('detected circles', 1280, 1000)
+
+    cv2.imshow('detected circles', image)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
     return make_graph(nbhds)
 
 def find_nbhd(image, nodes, bbox_edges, node):
@@ -56,8 +63,6 @@ def find_nbhd(image, nodes, bbox_edges, node):
     for pixel in out_srcs:
         found_nodes = traverse_edge(image, nodes, bbox_edges, node, pixel)
         nbhd = nbhd.union(found_nodes)
-
-    print "nbhd: ", nbhd
 
     return nbhd
 
@@ -102,10 +107,11 @@ def traverse_edge(image, nodes, bbox_edges, node, start_pixel):
 
     while not frontier.empty():
         current = frontier.get()
-        print current
         image[current] = PIXEL_VISITED
-        if current in bbox_edges and node != bbox_edges[current]: # Don't count loops as edges
-            found_nodes.add(bbox_edges[current])
+
+        if current in bbox_edges: 
+            if node != bbox_edges[current]: # Don't count loops as edges
+                found_nodes.add(bbox_edges[current])
             continue # Don't expand current pixel if it is on the boundary of a bounding box.
 
         for pixel in adjacent_pixels(current, image.shape):
