@@ -1,7 +1,7 @@
 import numpy as np
 from processing.edges import *
 from processing.processing import *
-from graph.compile import fuck
+from graph.compile import transpile
 
 if __name__ == "__main__":
     # a = np.ndarray(shape=(4, 4), buffer=np.array([[0, 0, 255, 255], [0, 255, 255, 255], [255, 255, 255, 0], [255, 0, 0, 255]]))
@@ -18,3 +18,4 @@ if __name__ == "__main__":
     graph = find_edges(img, img_nodes, bbox_edges)
     print graph
     #fuck(graph)
+    transpile(graph)

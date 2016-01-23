@@ -13,10 +13,13 @@ class Graph():
 
 class Node():
     """ A node in a graph. Each node stores information about its (x, y) coordinates, as well as a set of its neighbours. """
-    def __init__(self, x_pos, y_pos, neighbors):
+    def __init__(self, x_pos, y_pos, neighbors = {}):
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.neighbors = neighbors
 
     def __repr__(self):
         return "Node(%d, %d)" % (self.x_pos, self.y_pos)
+
+    def setNeighbors(self, neighbors):
+        self.neighbors = neighbors
