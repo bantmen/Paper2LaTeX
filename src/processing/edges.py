@@ -9,6 +9,15 @@ PIXEL_UNVISITED = 0 # Value of an unvisited pixel.
 PIXEL_VISITED = 1 # Value of a visited pixel.
 PIXEL_BG = 255 # Value of a background pixel.
 
+def make_bbox_edge_dict(nodes):
+    bbox_edges = {}
+    for node in nodes:
+        bbox_iter = make_bbox_iter(node.bbox_tl, node.bbox_br)
+        for pixel in bbox_iter:
+            bbox_edges[pixel] = node
+
+    return bbox_edges
+
 def find_edges(image, nodes, bbox_edges):
     """ Finds the edges between nodes in the given image.
 
@@ -45,24 +54,20 @@ def find_nbhd(image, nodes, bbox_edges, node):
 
     return nbhd
 
-def find_unvisited_out_srcs(image, node):
-    """ Returns a set of pixel representatives of unvisited edges incident to the given node. """
-    bbox_tl = node.bbox_tl
-    bbox_br = node.bbox_br
-
+def make_bbox_iter(bbox_tl, bbox_br):
     bbox_tr = (bbox_br[0], bbox_tl[1])
     bbox_bl = (bbox_tl[0], bbox_br[1])
 
-    #bbox_width = abs(bbox_br[0] - bbox_tl[0])
-    #bbox_height = abs(bbox_br[1] - bbox_tl[1])
-
-    # Generate a list of all pixels on the bounding box.
     tl_to_tr = zip(range(bbox_tl[0], bbox_tr[0]), repeat(bbox_tl[1])) # Top left to top right.
     tr_to_br = zip(repeat(bbox_tr[0]), range(bbox_tr[1], bbox_br[1])) # Top right to bottom right.
     br_to_bl = zip(range(bbox_br[0], bbox_bl[0], -1), repeat(bbox_br[1])) # Bottom right to bottom left.
     bl_to_tl = zip(repeat(bbox_bl[0]), range(bbox_bl[1], bbox_tl[1], -1)) # Bottom left to top left.
 
-    bbox_iter = chain(tl_to_tr, tr_to_br, br_to_bl, bl_to_tl)
+    return chain(tl_to_tr, tr_to_br, br_to_bl, bl_to_tl)
+
+def find_unvisited_out_srcs(image, node):
+    """ Returns a set of pixel representatives of unvisited edges incident to the given node. """
+    bbox_iter = make_bbox_iter(node.bbox_tl, node.bbox_br)
 
     reps = []
     cur_rep = None
