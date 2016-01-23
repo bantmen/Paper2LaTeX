@@ -8,6 +8,7 @@ from graph.graph import Graph, Node
 
 PIXEL_UNVISITED = 255 # Value of an unvisited pixel.
 PIXEL_VISITED = 120 # Value of a visited pixel.
+PIXEL_DISCOVERED = 80 # Value of a discovered pixel.
 PIXEL_BG = 0 # Value of a background pixel.
 
 def make_bbox_edge_dict(nodes):
@@ -27,6 +28,8 @@ def find_edges(image, nodes, bbox_edges):
     bbox_edges -- a dictionary indicating whether a pixel at a given coordinate is on the edge of a node's bounding box
     """
 
+    fill_node_bboxes(image, nodes)
+
     # Dictionary mapping each node to its immediate neighbourhood.
     nbhds = {}
 
@@ -34,6 +37,15 @@ def find_edges(image, nodes, bbox_edges):
         nbhds[node] = find_nbhd(image, nodes, bbox_edges, node)
 
     return make_graph(nbhds)
+
+def fill_node_bboxes(image, nodes):
+    for node in nodes:
+        bbox_tl = node.bbox_tl
+        bbox_br = node.bbox_br
+
+        for i in range(bbox_tl[0], bbox_br[0] + 1):
+            for j in range(bbox_tl[1], bbox_br[1] + 1):
+                image[j, i] = PIXEL_UNVISITED
 
 def find_nbhd(image, nodes, bbox_edges, node):
     """ Finds all of the nodes that are adjacent to the given node in the image.
@@ -51,17 +63,23 @@ def find_nbhd(image, nodes, bbox_edges, node):
     out_srcs = find_unvisited_out_srcs(image, node)
     # out_srcs = 
 
+    """
     print "out_srcs: ", out_srcs, node
 
     for pixel in out_srcs:
         found_nodes = traverse_edge(image, nodes, bbox_edges, node, pixel)
         nbhd = nbhd.union(found_nodes)
+    """
+    nbhd = traverse_edge(image, nodes, bbox_edges, node, (node.y_pos, node.x_pos))
 
     print "nbhd: ", nbhd
 
     return nbhd
 
 def make_bbox_iter(bbox_tl, bbox_br):
+    bbox_tl = (bbox_tl[1], bbox_tl[0])
+    bbox_br = (bbox_br[1], bbox_br[0])
+
     bbox_tr = (bbox_br[0], bbox_tl[1])
     bbox_bl = (bbox_tl[0], bbox_br[1])
 
@@ -72,8 +90,10 @@ def make_bbox_iter(bbox_tl, bbox_br):
 
     return chain(tl_to_tr, tr_to_br, br_to_bl, bl_to_tl)
 
+"""
 def find_starting_pixels(image, node):
     pass
+"""
 
 def find_unvisited_out_srcs(image, node):
     """ Returns a set of pixel representatives of unvisited edges incident to the given node. """
@@ -102,7 +122,7 @@ def traverse_edge(image, nodes, bbox_edges, node, start_pixel):
 
     while not frontier.empty():
         current = frontier.get()
-        print current
+        #print current, image[current]
         image[current] = PIXEL_VISITED
         if current in bbox_edges and node != bbox_edges[current]: # Don't count loops as edges
             found_nodes.add(bbox_edges[current])
@@ -110,6 +130,7 @@ def traverse_edge(image, nodes, bbox_edges, node, start_pixel):
 
         for pixel in adjacent_pixels(current, image.shape):
             if image[pixel] == PIXEL_UNVISITED:
+                image[pixel] = PIXEL_DISCOVERED
                 frontier.put(pixel)
 
     return found_nodes
