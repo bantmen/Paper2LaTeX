@@ -1,9 +1,9 @@
 import cv2
 import numpy as np
 
-from edges import ImageNode
+from graph.graph import Node
 
-debug = 1
+debug = 0
 
 def get_semantics(file_name):
     """
@@ -22,7 +22,7 @@ def get_semantics(file_name):
                                 param1=100, param2=30, minRadius=0, maxRadius=0)
 
     gimg = cv2.cvtColor(cimg, cv2.COLOR_BGR2GRAY)
-    retval, thresh_img = cv2.threshold(gimg, 110, 255, cv2.THRESH_BINARY_INV)
+    retval, thresh_img = cv2.threshold(gimg, 100, 255, cv2.THRESH_BINARY_INV)
 
     img_nodes = []
     circles = np.uint16(np.around(circles))
@@ -36,8 +36,8 @@ def get_semantics(file_name):
             cv2.circle(thresh_img,(x,y),2,(0,0,255),3)
             # draw bounding box
             cv2.rectangle(thresh_img, (max(0, x-r2), max(0, y-r2)), (min(width, x+r2), min(height, y+r2)), (125, 125, 25), 2)
-        img_node = ImageNode((max(0, x-r2), max(0, y-r2)), (min(width, x+r2), min(height, y+r2)), (x, y))
-        img_nodes.append(img_node)
+        img_node = Node((max(0, x-r2), max(0, y-r2)), (min(width, x+r2), min(height, y+r2)), x, y)
+        img_nodes.append(img_node) 
 
     if debug:
         cv2.namedWindow('detected circles', cv2.WINDOW_NORMAL)

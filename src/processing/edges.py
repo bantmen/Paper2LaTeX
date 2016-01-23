@@ -2,11 +2,13 @@ import numpy as np
 from Queue import Queue
 from itertools import repeat, chain, product
 
+import cv2
+
 from graph.graph import Graph, Node
 
-PIXEL_UNVISITED = 0 # Value of an unvisited pixel.
-PIXEL_VISITED = 1 # Value of a visited pixel.
-PIXEL_BG = 255 # Value of a background pixel.
+PIXEL_UNVISITED = 255 # Value of an unvisited pixel.
+PIXEL_VISITED = 120 # Value of a visited pixel.
+PIXEL_BG = 0 # Value of a background pixel.
 
 def make_bbox_edge_dict(nodes):
     bbox_edges = {}
@@ -31,6 +33,12 @@ def find_edges(image, nodes, bbox_edges):
     for node in nodes:
         nbhds[node] = find_nbhd(image, nodes, bbox_edges, node)
 
+    # cv2.namedWindow('', cv2.WINDOW_NORMAL)
+    # cv2.resizeWindow('', 1280, 1000)
+    # cv2.imshow("", image)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
+
     return make_graph(nbhds)
 
 def find_nbhd(image, nodes, bbox_edges, node):
@@ -47,10 +55,15 @@ def find_nbhd(image, nodes, bbox_edges, node):
     # Find clusters of unvisited pixels along the border of the bounding box;
     # these will be the starting points for traversing the pixels in each edge.
     out_srcs = find_unvisited_out_srcs(image, node)
+    # out_srcs = 
+
+    print "out_srcs: ", out_srcs, node
 
     for pixel in out_srcs:
         found_nodes = traverse_edge(image, nodes, bbox_edges, node, pixel)
         nbhd = nbhd.union(found_nodes)
+
+    print "nbhd: ", nbhd
 
     return nbhd
 
@@ -65,14 +78,15 @@ def make_bbox_iter(bbox_tl, bbox_br):
 
     return chain(tl_to_tr, tr_to_br, br_to_bl, bl_to_tl)
 
+def find_starting_pixels(image, node):
+    pass
+
 def find_unvisited_out_srcs(image, node):
     """ Returns a set of pixel representatives of unvisited edges incident to the given node. """
     bbox_iter = make_bbox_iter(node.bbox_tl, node.bbox_br)
 
     print "BBOX COORDS"
     print node.bbox_tl, node.bbox_br
-    print
-    print
 
     reps = []
     cur_rep = None
@@ -95,7 +109,7 @@ def traverse_edge(image, nodes, bbox_edges, node, start_pixel):
     while not frontier.empty():
         current = frontier.get()
         image[current] = PIXEL_VISITED
-        if current in bbox_edges:
+        if current in bbox_edges and node != bbox_edges[current]: # Don't count loops as edges
             found_nodes.add(bbox_edges[current])
             continue # Don't expand current pixel if it is on the boundary of a bounding box.
 
@@ -122,31 +136,6 @@ def make_graph(nbhds):
     """ Generates a Graph object from the dictionary of neighborhoods. """
     nodes = set()
     for node in nbhds.keys():
-        nodes.add(Node(node.center[0], node.center[1], nbhds[node]))
+        nodes.add(Node(x_pos=node.x_pos, y_pos=node.y_pos, neighbors=nbhds[node]))
 
     return Graph(nodes)
-
-class ImageNode():
-    def __init__(self, bbox_tl, bbox_br, center):
-        self.bbox_tl = bbox_tl
-        self.bbox_br = bbox_br
-        self.center = center
-        self.x_pos, self.y_pos = center
-
-    def __repr__(self):
-        return "Node(%d, %d)" % (self.x_pos, self.y_pos)
-
-    def __hash__(self):
-        return self.center.__hash__()
-
-"""
-if __name__ == "__main__":
-    a = np.ndarray(shape=(4, 4), buffer=np.array([[0, 0, 255, 255], [0, 255, 255, 255], [255, 255, 255, 0], [255, 0, 0, 255]]))
-    print a
-    find_unvisited_out_srcs(a, ImageNode((0, 0), (3, 3)))
-
-    print
-    print
-    adjacent_pixels((0, 3), (5, 5))
-"""
-
