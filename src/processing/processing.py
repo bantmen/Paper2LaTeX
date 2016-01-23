@@ -1,5 +1,4 @@
 import cv2
-import cv2.cv as cv
 import numpy as np
 
 from edges import ImageNode
@@ -19,11 +18,11 @@ def get_semantics(file_name):
     min_closest_dist = int(max(height, width) / 7)
     bounding_wiggle = min_closest_dist
 
-    circles = cv2.HoughCircles(img, cv.CV_HOUGH_GRADIENT, 1, min_closest_dist,
+    circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1, min_closest_dist,
                                 param1=100, param2=30, minRadius=0, maxRadius=0)
 
     gimg = cv2.cvtColor(cimg, cv2.COLOR_BGR2GRAY)
-    retval, thresh_img = cv2.threshold(gimg, 150, 255, cv2.THRESH_BINARY_INV)
+    retval, thresh_img = cv2.threshold(gimg, 110, 255, cv2.THRESH_BINARY_INV)
 
     img_nodes = []
     circles = np.uint16(np.around(circles))
@@ -36,13 +35,13 @@ def get_semantics(file_name):
             # draw the center of the circle
             cv2.circle(thresh_img,(x,y),2,(0,0,255),3)
             # draw bounding box
-            cv2.rectangle(thresh_img, (min(width, x+r2), min(height, y+r2)), (max(0, x-r2), max(0, y-r2)), (125, 125, 25), 2)
+            cv2.rectangle(thresh_img, (max(0, x-r2), max(0, y-r2)), (min(width, x+r2), min(height, y+r2)), (125, 125, 25), 2)
         img_node = ImageNode((max(0, x-r2), max(0, y-r2)), (min(width, x+r2), min(height, y+r2)), (x, y))
         img_nodes.append(img_node)
 
     if debug:
         cv2.namedWindow('detected circles', cv2.WINDOW_NORMAL)
-        cv2.resizeWindow('detected circles', 1280, 720)
+        cv2.resizeWindow('detected circles', 1280, 1000)
 
         cv2.imshow('detected circles', thresh_img)
         cv2.waitKey(0)
