@@ -2,6 +2,8 @@ import numpy as np
 from Queue import Queue
 from itertools import repeat, chain, product
 
+from graph.graph import Graph, Node
+
 
 PIXEL_UNVISITED = 0 # Value of an unvisited pixel.
 PIXEL_VISITED = 1 # Value of a visited pixel.
@@ -39,7 +41,7 @@ def find_nbhd(image, nodes, bbox_edges, node):
     out_srcs = find_unvisited_out_srcs(image, node)
 
     for pixel in out_srcs:
-        nbhd.add(traverse_edge(image, nodes, bbox_edges, node, start_pixel))
+        nbhd = nbhd.union(traverse_edge(image, nodes, bbox_edges, node, start_pixel))
 
     return nbhd
 
@@ -78,10 +80,20 @@ def traverse_edge(image, nodes, bbox_edges, node, start_pixel):
     frontier = Queue()
     frontier.put(start_pixel)
 
+    found_nodes = set()
+
     while not frontier.empty():
         current = frontier.get()
+        image[current] = PIXEL_VISITED
+        if current in bbox_edges:
+            found_nodes.add(bbox_edges[current])
+            continue # Don't expand current pixel if it is on the boundary of a bounding box.
+
         for pixel in adjacent_pixels(current, image.shape):
-            pass
+            if pixel == PIXEL_UNVISITED:
+                frontier.put(pixel)
+
+    return found_nodes
 
 def adjacent_pixels(pixel, image_shape):
     adjacent = []
@@ -98,13 +110,22 @@ def adjacent_pixels(pixel, image_shape):
 
 def make_graph(nbhds):
     """ Generates a Graph object from the dictionary of neighborhoods. """
-    raise Exception("Not yet implemented.")
+    nodes = set()
+    for node in nbhds.keys():
+        nodes.add(Node(node.center[0], node.center[1], nbhds[node]))
+
+    return Graph(nodes)
 
 class ImageNode():
-    def __init__(self, bbox_tl, bbox_br):
+    def __init__(self, bbox_tl, bbox_br, center):
         self.bbox_tl = bbox_tl
         self.bbox_br = bbox_br
+        self.center = center
 
+    def __hash__(self):
+        return center.__hash__()
+
+"""
 if __name__ == "__main__":
     a = np.ndarray(shape=(4, 4), buffer=np.array([[0, 0, 255, 255], [0, 255, 255, 255], [255, 255, 255, 0], [255, 0, 0, 255]]))
     print a
@@ -113,4 +134,5 @@ if __name__ == "__main__":
     print
     print
     adjacent_pixels((0, 3), (5, 5))
+"""
 
