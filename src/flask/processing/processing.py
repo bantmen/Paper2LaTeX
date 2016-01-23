@@ -13,8 +13,10 @@ def get_semantics(file_name):
     """
     img = cv2.imread(file_name, 0)
     img = cv2.medianBlur(img, 5)
-    img = cv2.pyrDown(img)
-    img = cv2.pyrDown(img)
+    w, h, _ = img.shape
+    while 800 < w:
+        img = cv2.pyrDown(img)
+        w, h, _ = img.shape
     cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR) 
     
 
