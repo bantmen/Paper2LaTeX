@@ -6,6 +6,7 @@ from graph.compile import transpile
 
 
 app = Flask(__name__)
+app.debug = True
 
 app.config['UPLOAD_FOLDER'] = 'static/'
 
@@ -23,10 +24,10 @@ def upload_photo():
     files = glob.glob('static/*')
     for f in files:
       os.remove(f)
-    img = request.files['img']
-    if img:
-        path = os.path.join(app.config['UPLOAD_FOLDER'], img.filename)
-        img.save(path)
+    img_file = request.files['img']
+    if img_file:
+        path = os.path.join(app.config['UPLOAD_FOLDER'], img_file.filename)
+        img_file.save(path)
         file_name = path
         
         img_nodes, img = get_semantics(file_name)
@@ -35,7 +36,7 @@ def upload_photo():
         width, height = img.shape
         transpile(graph, width, height)
 
-        return render_template('results.html', img=img.filename, placeholder=0)
+        return render_template('results.html', img=img_file.filename, placeholder=0)
     return render_template('results.html', img=url, placeholder=1)
     # return "hello"
 
