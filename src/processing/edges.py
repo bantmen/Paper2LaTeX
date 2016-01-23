@@ -4,7 +4,6 @@ from itertools import repeat, chain, product
 
 from graph.graph import Graph, Node
 
-
 PIXEL_UNVISITED = 0 # Value of an unvisited pixel.
 PIXEL_VISITED = 1 # Value of a visited pixel.
 PIXEL_BG = 255 # Value of a background pixel.
@@ -50,7 +49,7 @@ def find_nbhd(image, nodes, bbox_edges, node):
     out_srcs = find_unvisited_out_srcs(image, node)
 
     for pixel in out_srcs:
-        nbhd = nbhd.union(traverse_edge(image, nodes, bbox_edges, node, start_pixel))
+        nbhd = nbhd.union(traverse_edge(image, nodes, bbox_edges, node, pixel))
 
     return nbhd
 
@@ -67,6 +66,8 @@ def make_bbox_iter(bbox_tl, bbox_br):
 
 def find_unvisited_out_srcs(image, node):
     """ Returns a set of pixel representatives of unvisited edges incident to the given node. """
+    print node.bbox_tl
+    print node.bbox_br
     bbox_iter = make_bbox_iter(node.bbox_tl, node.bbox_br)
 
     reps = []
@@ -128,7 +129,7 @@ class ImageNode():
         self.center = center
 
     def __hash__(self):
-        return center.__hash__()
+        return self.center.__hash__()
 
 """
 if __name__ == "__main__":

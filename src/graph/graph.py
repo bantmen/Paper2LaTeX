@@ -1,6 +1,5 @@
 class Graph():
     """ A graph. """
-
     def __init__(self, nodes, directed=False):
         """ Initializes a new graph with the given set of nodes. """
         self.nodes = nodes
