@@ -17,5 +17,6 @@ if __name__ == "__main__":
     bbox_edges = make_bbox_edge_dict(img_nodes)
     graph = find_edges(img, img_nodes, bbox_edges)
     print graph
-    #fuck(graph)
-    transpile(graph)
+    
+    width, height = img.shape
+    transpile(graph, width, height)

@@ -131,6 +131,10 @@ class ImageNode():
         self.bbox_tl = bbox_tl
         self.bbox_br = bbox_br
         self.center = center
+        self.x_pos, self.y_pos = center
+
+    def __repr__(self):
+        return "Node(%d, %d)" % (self.x_pos, self.y_pos)
 
     def __hash__(self):
         return self.center.__hash__()

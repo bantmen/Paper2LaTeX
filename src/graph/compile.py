@@ -10,14 +10,15 @@ from graph import *
 
 # graph = Graph({node1, node2, node3, node4})
 
-def transpile(g):
+def transpile(g, width, height):
     color="red!20"
     shape="circle"
     size="1cm"
+
     def getNodeString(node):
-      return "({0},{1}) node[{2}, fill={3}, minimum size={4}] {5};\n".format(node.x_pos, node.y_pos, shape, color, size, "{}")
+      return "({0},{1}) node[{2}, fill={3}, minimum size={4}] {5};\n".format(node.x_pos/float(width)*5, node.y_pos/float(height)*5, shape, color, size, "{}")
     def getEdgeString(node1, node2):
-      return "({0},{1}) -- ({2},{3});\n".format(node1.x_pos, node1.y_pos, node2.x_pos, node2.y_pos)
+      return "({0},{1}) -- ({2},{3});\n".format(node1.x_pos/float(width)*5, node1.y_pos/float(height)*5, node2.x_pos/float(width)*5, node2.y_pos/float(height)*5)
 
     f = open("output.tex", 'w')
     f.write("\documentclass{article}\n\usepackage{tikz}\n\\begin{document}\n\\begin{tikzpicture}\n")
