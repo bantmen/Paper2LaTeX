@@ -90,11 +90,6 @@ def make_bbox_iter(bbox_tl, bbox_br):
 
     return chain(tl_to_tr, tr_to_br, br_to_bl, bl_to_tl)
 
-"""
-def find_starting_pixels(image, node):
-    pass
-"""
-
 def find_unvisited_out_srcs(image, node):
     """ Returns a set of pixel representatives of unvisited edges incident to the given node. """
     bbox_iter = make_bbox_iter(node.bbox_tl, node.bbox_br)
