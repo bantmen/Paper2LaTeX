@@ -28,4 +28,3 @@ def transpile(g):
       f.write("\t\\draw " + getNodeString(node))   
     f.write("\end{tikzpicture}\n\end{document}")
 
-transpile(g)
