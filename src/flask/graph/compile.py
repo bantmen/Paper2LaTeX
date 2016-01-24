@@ -16,9 +16,9 @@ def transpile(g, width, height):
     size="1cm"
 
     def getNodeString(node):
-      return "({0},{1}) node[{2}, fill={3}, minimum size={4}] {5};\n".format(node.x_pos/float(width)*5, node.y_pos/float(height)*5, shape, color, size, "{}")
+      return "({0},{1}) node[{2}, fill={3}, minimum size={4}] {5};\n".format(node.x/float(width)*8, 8-node.y/float(height)*8, shape, color, size, "{}")
     def getEdgeString(node1, node2):
-      return "({0},{1}) -- ({2},{3});\n".format(node1.x_pos/float(width)*5, node1.y_pos/float(height)*5, node2.x_pos/float(width)*5, node2.y_pos/float(height)*5)
+      return "({0},{1}) -- ({2},{3});\n".format(node1.x/float(width)*8, 8-node1.y/float(height)*8, node2.x/float(width)*8, 8-node2.y/float(height)*8)
 
     f = open("output.tex", 'w')
     f.write("\documentclass{article}\n\usepackage{tikz}\n\\begin{document}\n\\begin{tikzpicture}\n")

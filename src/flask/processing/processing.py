@@ -14,7 +14,7 @@ def get_semantics(file_name):
     img = cv2.imread(file_name, 0)
     img = cv2.medianBlur(img, 5)
     w, h = img.shape
-    while 800 < w:
+    while 1200 < w:
         img = cv2.pyrDown(img)
         w, h = img.shape
     cimg = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR) 
@@ -24,11 +24,12 @@ def get_semantics(file_name):
     min_closest_dist = int(max(height, width) / 7)
     bounding_wiggle = min_closest_dist
 
-    circles = cv2.HoughCircles(img, cv.CV_HOUGH_GRADIENT, 1, min_closest_dist,
+    gimg = cv2.cvtColor(cimg, cv2.COLOR_BGR2GRAY)
+    retval, thresh_img = cv2.threshold(gimg, 180, 255, cv2.THRESH_BINARY_INV)
+
+    circles = cv2.HoughCircles(thresh_img, cv.CV_HOUGH_GRADIENT, 1, min_closest_dist,
                                 param1=100, param2=30, minRadius=0, maxRadius=0)
 
-    gimg = cv2.cvtColor(cimg, cv2.COLOR_BGR2GRAY)
-    retval, thresh_img = cv2.threshold(gimg, 100, 255, cv2.THRESH_BINARY_INV)
 
     img_nodes = []
     circles = np.uint16(np.around(circles))
@@ -37,9 +38,9 @@ def get_semantics(file_name):
         if debug:
             print x, y, r
             # draw the outer circle
-            cv2.circle(thresh_img,(x,y),r,(0,255,0),2)
+            cv2.circle(thresh_img,(x,y),r,(100,255,100),2)
             # draw the center of the circle
-            cv2.circle(thresh_img,(x,y),2,(0,0,255),3)
+            cv2.circle(thresh_img,(x,y),2,(100,100,255),3)
             # draw bounding box
             cv2.rectangle(thresh_img, (max(0, x-r2), max(0, y-r2)), (min(width, x+r2), min(height, y+r2)), (125, 125, 25), 2)
         img_node = Node((max(0, x-r2), max(0, y-r2)), (min(width, x+r2), min(height, y+r2)), x, y)
@@ -47,7 +48,7 @@ def get_semantics(file_name):
 
     if debug:
         cv2.namedWindow('detected circles', cv2.WINDOW_NORMAL)
-        cv2.resizeWindow('detected circles', 1280, 800)
+        # cv2.resizeWindow('detected circles', 1280, 800)
 
         cv2.imshow('detected circles', thresh_img)
         cv2.waitKey(0)

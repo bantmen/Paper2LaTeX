@@ -19,6 +19,8 @@ class Node():
         self.x_pos = x_pos
         self.y_pos = y_pos
         self.neighbors = neighbors
+        self.x = x_pos
+        self.y = y_pos
 
     def __hash__(self):
         return hash((self.x_pos, self.y_pos))
